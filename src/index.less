@@ -1,0 +1,18 @@
+@primary : #5bc0de;
+
+.clearfix() {
+  &:before,
+  &:after {
+    content: "";
+    display: table;
+  }
+  &:after {
+    clear: both;
+  }
+}
+ol,
+ul,
+li {
+  list-style: none;
+  padding: 0;
+}
