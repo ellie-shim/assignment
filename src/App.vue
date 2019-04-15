@@ -1,28 +1,72 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <div class="container-fluid">
+      <div class="row">
+        <h3 class="col-xs-12 text-center">코멘토 과제전형-심소영</h3>
+      </div>
+      <div class="row">
+        <template v-for="item in contentsList">
+          <p class="col-xs-12">{{item.title}}</p>
+        </template>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
+import Todo from "./components/Todo";
+import axios from "axios";
 export default {
-  name: 'app',
+  name: "app",
+  data() {
+    return {
+      contentsList: [],
+      trigger: 100,
+      page: 1
+    };
+  },
+  computed: {},
+
+  methods: {
+    async getList() {
+      let api = `http://comento.cafe24.com/request.php?page=${this.page}`;
+      console.log(api);
+      const { data } = await axios.get(api);
+      this.contentsList = this.contentsList.concat(data.list);
+    },
+    onScroll() {
+      if (
+        window.innerHeight + window.pageYOffset >=
+        document.body.offsetHeight
+      ) {
+        if (this.page < 100) {
+          this.page += 1;
+          this.getList();
+        }
+      }
+    },
+    scroll() {
+      window.onscroll = ev => {
+        if (
+          window.innerHeight + window.scrollY >=
+          document.body.offsetHeight - this.trigger
+        ) {
+          console.log("hohohoohoho");
+        }
+      };
+    }
+  },
+  mounted() {
+    this.getList();
+    window.addEventListener("scroll", e => this.onScroll(), false);
+  },
+  created() {
+    console.log("created");
+  },
+  destroyed() {},
   components: {
-    HelloWorld
+    Todo
   }
-}
+};
 </script>
 
-<style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
