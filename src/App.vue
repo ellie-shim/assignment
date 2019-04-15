@@ -17,8 +17,6 @@
 import Todo from "./components/Todo";
 import axios from "axios";
 
-
-
 export default {
   name: "app",
   data() {
@@ -26,16 +24,18 @@ export default {
       contentsList: [],
       trigger: 100,
       page: 1,
-      category :[],
+      category: []
     };
   },
   computed: {},
 
   methods: {
-    async getCategory(){
-      const {data} = await axios.get("http://comento.cafe24.com/category.php")
-      this.category = this.category.concat(data.list)
-    }
+    async getCategory() {
+      const { data } = await axios.get(
+        "http://comento.cafe24.com/category.php"
+      );
+      this.category = this.category.concat(data.list);
+    },
     async getList() {
       let api = `http://comento.cafe24.com/request.php?page=${this.page}`;
       console.log(api);
@@ -66,6 +66,7 @@ export default {
   },
   mounted() {
     this.getList();
+    this.getCategory();
     window.addEventListener("scroll", e => this.onScroll(), false);
   },
   created() {
