@@ -1,9 +1,9 @@
 <template>
   <!-- transition : transition으로 감싸진 엘리먼트가 on/off될때 일어남 -->
   <transition name="modal">
-    <div class="modal" v-if="visible">
+    <div class="modal" v-show="active">
       <ul class="modal__con">
-        <button type="button" class="close" @click="toggleModal">
+        <button type="button" class="close" @click="close()">
           &times;
           <span class="readable-hidden">모달창 닫기 버튼</span>
         </button>
@@ -13,11 +13,11 @@
             :name="i.name"
             :id="i.name"
             :value="i.no"
-            v-model="checkedCategories"
+            v-model="selectedCategories"
           >
           <label :for="i.name">{{i.name}}</label>
         </li>
-        <button type="button" @click="handleClickCategory">저장</button>
+        <button type="button" @click="saveCategory()">저장</button>
       </ul>
     </div>
   </transition>
@@ -26,29 +26,39 @@
 export default {
   name: "Modal",
   props: {
-    visible: {
-      type: Boolean,
-      default: false
-    },
     category: {
       type: Array,
       default() {
         return [];
       }
     },
-    checkedCategories: {
-      type: Array,
-      default() {
-        return [];
-      }
+    categoryFilter: {
+      type: Array
     }
   },
+  data() {
+    return {
+      selectedCategories: [1, 2, 3],
+      active: false
+    };
+  },
   methods: {
-    handleClickCategory() {
-      console.log(chckedCategories);
+    open() {
+      this.active = true;
     },
-    toggleModal() {
-      this.$emit("toggleModal");
+    close() {
+      this.active = false;
+    },
+
+    handleClickCategory() {
+      this.$emit("handleClickCategory");
+    },
+    handleCategoryFilter() {
+      console.log(this.categoryFilter);
+      this.$emit("update:categoryFilter", this.selectedCategories);
+    },
+    saveCategory() {
+      this.$emit("saveCategory", this.selectedCategories);
     }
   }
 };

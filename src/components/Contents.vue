@@ -6,7 +6,7 @@
       </div>
       <div class="filter row mb-2">
         <div class="col-xs-4">
-          <button type="button" @click="toggleModal()">필터</button>
+          <button type="button" @click="$refs.filterModal.open()">필터</button>
         </div>
         <div class="col-xs-6 col-xs-offset-2 text-right">
           <button type="button" @click="toggleAsc()">오름차순</button>
@@ -14,7 +14,11 @@
         </div>
       </div>
       <ul class="contents row">
-        <li class="contents__item list-group col-xs-12" v-for="i in contentsList" v-bind:key="i.no">
+        <li
+          class="contents__item list-group col-xs-12"
+          v-for="(i, index) in contentsList"
+          :key="index"
+        >
           <p class="contents__header">
             <span class="col-xs-6">{{findCategory(i.category_no).name}}</span>
             <span class="col-xs-6 text-right">{{i.no}}</span>
@@ -23,16 +27,19 @@
             <span>{{i.email}}</span>
             <span>{{i.updated_at}}</span>
           </p>
-          <h3 class="list-group-item-headeing col-xs-12">{{i.title}}</h3>
-          <p class="list-group-item-text col-xs-12">{{i.contents}}</p>
+          <router-link :to="i.no">
+            <h3 class="list-group-item-headeing col-xs-12">{{i.title}}</h3>
+            <p class="list-group-item-text col-xs-12">{{i.contents}}</p>
+          </router-link>
         </li>
       </ul>
     </div>
     <modal
+      ref="filterModal"
       :category="category"
-      :visible="visible"
-      :checkedCategories="checkedCategories"
-      @toggleModal="toggleModal"
+      :categoryFilter="categoryFilter"
+      @handleClickCategory="handleClickCategory"
+      @saveCategory="saveCategory"
     ></modal>
   </div>
 </template>
@@ -49,22 +56,30 @@ export default {
       page: 1,
       ord: "asc",
       category: [],
-      visible: false,
-      checkedCategories: []
+      categoryFilter: [1, 2, 3]
     };
   },
   computed: {},
 
   methods: {
-    toggleModal() {
-      this.visible = !this.visible;
+    async saveCategory(selected) {
+      console.log(selected);
+      this.categoryFilter = selected.slice();
+      this.$refs.filterModal.close();
+      this.contentsList = [];
+      this.page = 1;
+      this.getList(this.ord, this.categoryFilter);
+    },
+    handleClickCategory(categories) {
+      console.log(categories);
+      // this.categoryFilter = categories.slice();
     },
     toggleAsc() {
       if (this.ord === "desc") {
         this.ord = "asc";
         this.contentsList = [];
         this.page = 1;
-        this.getList(this.ord);
+        this.getList(this.ord, this.categoryFilter);
       }
     },
     toggleDesc() {
@@ -73,7 +88,7 @@ export default {
         this.contentsList = [];
         this.page = 1;
 
-        this.getList(this.ord);
+        this.getList(this.ord, this.categoryFilter);
       }
     },
     findCategory(no) {
@@ -92,11 +107,12 @@ export default {
       // 불러서 category에 넣는다.
       this.category = this.category.concat(data.list);
     },
-    async getList(ord) {
+    async getList(ord, category) {
       // 글 목록을 불러오는 함수. 무한스크롤을 위해 page 값, 정렬을 위해 ord값을 사용한다.
       let api = `http://comento.cafe24.com/request.php?page=${
         this.page
-      }&ord=${ord}`;
+      }&ord=${ord}&category=${category}`;
+      console.log(api);
       const { data } = await axios.get(api);
       this.contentsList = this.contentsList.concat(data.list);
     },
@@ -108,13 +124,13 @@ export default {
       ) {
         if (this.page < 100) {
           this.page += 1;
-          this.getList(this.ord);
+          this.getList(this.ord, this.categoryFilter);
         }
       }
     }
   },
   async mounted() {
-    this.getList(this.ord);
+    this.getList(this.ord, this.categoryFilter);
     await this.getCategory();
     await this.findCategory();
     window.addEventListener("scroll", () => this.onScroll(), false);
@@ -137,6 +153,12 @@ export default {
   }
 }
 .contents {
+  a {
+    color: black;
+    &:hover {
+      color: @primary;
+    }
+  }
   &__item {
     border: 1px solid @primary;
     padding: 0 0 15px;
