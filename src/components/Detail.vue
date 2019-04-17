@@ -44,7 +44,7 @@ export default {
     }
   },
   created() {
-      // 주소표시줄에 있는 값을 가져와서 파라미터로 넘겨준다.
+      // 주소표시줄에 있는 값을 가져와서 파람스로 넘겨준다.
     this.getDetail(this.$route.params.contentsId);
   }
 };
