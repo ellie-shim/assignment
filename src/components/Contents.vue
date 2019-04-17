@@ -13,10 +13,9 @@
           <button type="button" @click="toggleDesc()">내림차순</button>
         </div>
       </div>
-      <ul class="contents row">
-        <!--  글 목록 -->
+      <div class="contents">
         <template v-for="(i, index) in contentsList">
-          <li  class="contents__item list-group col-xs-12" v-if="(index+1)%4!== 0" :key="index">
+          <div  class="contents__item list-group col-xs-12" v-if="( index + 1 ) % 4 !== 0" :key="i.title">
             <p class="contents__header">
               <span class="col-xs-6">{{findCategory(i.category_no).name}}</span>
               <span class="col-xs-6 text-right">{{i.no}}</span>
@@ -29,9 +28,17 @@
               <h3 class="list-group-item-headeing col-xs-12">{{i.title}}</h3>
               <p class="list-group-item-text col-xs-12">{{i.contents}}</p>
             </router-link>
-          </li>
+          </div>
+          <div v-if="( index + 1 ) % 4 === 0" :key="`a${i.title}`" class="ads" >
+            <h3>Sponsored</h3>
+            <img src="http://comento.cafe24.com/public/images/test5.jpg">
+            <div class="ads__info">
+            <p class="ads__title">ADS_4k4fL</p>
+            <p class="ads__contents">Integer et commodo dui, quis bibendum leo. Nullam sed tristique neque. Phasellus interdum augue dolor.Integer et commodo dui, quis bibendum leo. Nullam sed tristique neque. Phasellus interdum augue dolor. InInteger et commodo dui, quis bibendum leo. Nullam sed tristique neque. Phasellus interdum augue dolor. In Integer fringilla pharetra odio, quis congue nunc efficitur in. Aliquam non odio et ante ultrices tincidunt. Donec ornare a lacus eu imperdiet. Donec ac purus nec libero auctor vestibulum posuere ut nulla. Nunc pulvinar ante vitae nulla dignissim, vel consequat lacus aliquet. Pellentesque ut purus mauris. Curabitur nec felis dignissim, convallis libero vitae, semper ipsum. Phasellus porta, magn</p>
+            </div>
+          </div>
         </template>
-      </ul>
+      </div>
     </div>
     <modal
       ref="filterModal"
@@ -52,17 +59,39 @@ export default {
     return {
       // 글 목록이 담긴 배열
       contentsList: [],
-      // 파라미터로 넘길 페이지
+      // 파람스로 넘길 페이지
       page: 1,
-      // 파라미터로 넘길 정렬 값
+      // 파람스로 넘길 정렬 값
       ord: "asc",
       // 카테고리 목록이 담긴 배열
       category: [],
-      // (카테고리 필터링 기능을 위한 ) 파라미터로 넘길 카테고리 값
+      // (카테고리 필터링 기능을 위한 ) 파람스로 넘길 카테고리 값
       categoryFilter: [1, 2, 3],
+      // 광고 목록이 담긴 배열
+      ads: []
     };
   },
   methods: {
+    drawAds(contentslist, index) {
+      for (let i = 1; i < contentslist.length; i++) {
+        if (index === 3 * i - 1) {
+          return true;
+        }
+      }
+    },
+    // 광고 리스트를 불러오는 함수
+    async getAds() {
+      try {
+        let api = `http://comento.cafe24.com/ads.php?page=${this.page}&limit=3`;
+        const {
+          data: { list }
+        } = await axios.get(api);
+        this.ads = this.ads.concat(list);
+
+      } catch (e) {
+        throw new Error(e);
+      }
+    },
     // 모달창에서 필터링 한 카테고리를 저장하고 데이터를 다시 불러오는 함수
     async saveCategory(selected) {
       this.categoryFilter = selected.slice();
@@ -115,7 +144,6 @@ export default {
         let api = `http://comento.cafe24.com/request.php?page=${
           this.page
         }&ord=${ord}&category=${category}`;
-        console.log(api);
         const { data } = await axios.get(api);
         this.contentsList = this.contentsList.concat(data.list);
       } catch (e) {
@@ -192,12 +220,45 @@ export default {
     }
   }
   .list-group-item-heading,
-  .list-group-item-text {
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    word-wrap: normal;
-    width: 100%;
-    overflow: hidden;
+  .list-group-item-text{
+    .text-ellipsis()
+  }
+  .ads{
+    margin-bottom:30px;
+    img{
+      width:100%;
+      max-width:450px;
+    }
+    &__title{
+      .text-ellipsis-line();
+      -webkit-line-clamp: 2; 
+      height: 2.4em; 
+      margin-top:20px;
+      font-weight:600;
+    }
+    &__contents{
+      .text-ellipsis-line();
+
+      -webkit-line-clamp: 2; 
+      height: 2.4em;
+      
+    }
+  }
+}
+@media screen and (min-width: 481px)  {
+  .ads{
+    &__info{
+      float:right;
+      width:calc(100% - 450px - 10px)
+    }
+    .ads__title{
+      margin:0;
+    }
+    .ads__contents{
+      -webkit-line-clamp: 4; 
+      height: 4.8em;
+
+    }
   }
 }
 </style>

@@ -20,6 +20,20 @@
   -moz-transform: translate(-50%, -50%);
   transform: translate(-50%, -50%);
 }
+.text-ellipsis() {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  word-wrap: normal;
+  width: 100%;
+  overflow: hidden;
+}
+.text-ellipsis-line() {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  word-wrap: break-word;
+  line-height: 1.2em;
+}
 .readable-hidden {
   position: absolute;
   width: 1px;
